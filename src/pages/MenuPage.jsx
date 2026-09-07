@@ -3,8 +3,8 @@ import { useMenuData } from '../hooks/useMenuData.js'
 import CategoryNav from '../components/CategoryNav.jsx'
 import MenuItemRow from '../components/MenuItemRow.jsx'
 
-const RESTAURANT_NAME = 'Trattoria Fienile'
-const RESTAURANT_TAGLINE = 'Wood-fired plates, poured by hand, since 2014'
+const RESTAURANT_NAME = 'Misrak Addis Hotel & Butchery'
+const RESTAURANT_TAGLINE = 'Fresh cuts, fire-grilled, served with tradition'
 
 export default function MenuPage() {
   const { categories, items, loading, error } = useMenuData()
@@ -57,16 +57,22 @@ export default function MenuPage() {
 
   const itemsByCategory = categories.map((cat) => ({
     ...cat,
-    items: items.filter((i) => i.category_id === cat.id),
+    items: items
+      .filter((i) => i.category_id === cat.id)
+      .slice()
+      .sort((a, b) => Number(b.price) - Number(a.price)),
   }))
 
   return (
     <div className="min-h-screen bg-paper">
       {/* Hero */}
-      <header className="px-6 sm:px-8 pt-10 pb-6 text-center border-b border-line">
-        <p className="font-display italic text-gold text-sm mb-1">{RESTAURANT_TAGLINE}</p>
-        <h1 className="font-display text-[34px] sm:text-[42px] text-ink leading-tight">
+      <header className="px-6 sm:px-8 pt-10 pb-6 text-center border-b-2 border-wine/15 bg-gradient-to-b from-wineTint/60 to-transparent">
+        <p className="font-display italic text-gold text-sm mb-1 tracking-wide">
+          {RESTAURANT_TAGLINE}
+        </p>
+        <h1 className="group inline-block font-display text-[30px] sm:text-[42px] text-wine leading-tight transition-all duration-300 hover:tracking-wide hover:text-wineDeep cursor-default">
           {RESTAURANT_NAME}
+          <span className="block h-[2px] w-0 bg-gold mx-auto mt-2 transition-all duration-500 group-hover:w-2/3" />
         </h1>
       </header>
 
@@ -89,7 +95,12 @@ export default function MenuPage() {
             ref={(el) => (sectionRefs.current[cat.id] = el)}
             className="pt-10 scroll-mt-24"
           >
-            <h2 className="font-display text-[24px] text-ink mb-1">{cat.name}</h2>
+            <div className="flex items-center gap-3 mb-1">
+              <h2 className="font-display text-[28px] sm:text-[30px] font-medium text-wine tracking-wide">
+                {cat.name}
+              </h2>
+              <span className="flex-1 h-[2px] bg-wine/20 rounded-full" />
+            </div>
             {cat.description ? (
               <p className="text-ink/50 text-sm mb-2">{cat.description}</p>
             ) : (

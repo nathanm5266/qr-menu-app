@@ -1,24 +1,23 @@
 export default function CategoryNav({ categories, activeId, onSelect }) {
   return (
     <nav
-      className="sticky top-0 z-20 bg-paper/95 backdrop-blur border-b border-line"
+      className="sticky top-0 z-20 bg-paper/95 backdrop-blur border-b-2 border-wine/15 shadow-sm"
       aria-label="Menu categories"
     >
-      <div className="flex gap-6 overflow-x-auto px-4 sm:px-8 no-scrollbar">
+      <div className="flex gap-2 overflow-x-auto px-4 sm:px-8 py-3 no-scrollbar">
         {categories.map((cat) => {
           const active = cat.id === activeId
           return (
             <button
               key={cat.id}
               onClick={() => onSelect(cat.id)}
-              className={`relative whitespace-nowrap py-4 font-body text-[15px] transition-colors ${
-                active ? 'text-ink' : 'text-ink/45 hover:text-ink/70'
+              className={`whitespace-nowrap rounded-full px-4 py-2 font-display text-[16px] tracking-wide transition-all duration-200 ${
+                active
+                  ? 'bg-wine text-paper shadow-md scale-105'
+                  : 'text-wine/60 hover:text-wine hover:bg-wineTint'
               }`}
             >
               {cat.name}
-              {active && (
-                <span className="absolute left-0 right-0 -bottom-px h-[2px] bg-gold rounded-full" />
-              )}
             </button>
           )
         })}
