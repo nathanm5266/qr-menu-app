@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMenuData } from '../hooks/useMenuData.js'
+import Navbar from '../components/Navbar.jsx'
 import Hero from '../components/Hero.jsx'
 import CategoryNav from '../components/CategoryNav.jsx'
 import MenuItemRow from '../components/MenuItemRow.jsx'
@@ -78,34 +79,21 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Navbar
+        onViewMenu={() => {
+          setMode('regular')
+          scrollToMenu()
+        }}
+        onViewVip={() => {
+          setMode('vip')
+          scrollToMenu()
+        }}
+        hasVip={vipCategories.length > 0}
+      />
+
       <Hero name={RESTAURANT_NAME} tagline={RESTAURANT_TAGLINE} onViewMenu={scrollToMenu} />
 
       <div ref={menuStartRef} className="scroll-mt-0" />
-
-      {vipCategories.length > 0 && (
-        <div className="flex justify-center gap-2 pt-6 pb-1 px-4">
-          <button
-            onClick={() => setMode('regular')}
-            className={`text-xs tracking-wide px-4 py-1.5 rounded-full border transition-colors ${
-              mode === 'regular'
-                ? 'bg-wine text-paper border-wine'
-                : 'text-wine/70 border-wine/30 hover:bg-wineTint'
-            }`}
-          >
-            Menu
-          </button>
-          <button
-            onClick={() => setMode('vip')}
-            className={`text-xs tracking-wide px-4 py-1.5 rounded-full border transition-colors ${
-              mode === 'vip'
-                ? 'bg-wine text-paper border-wine'
-                : 'text-wine/70 border-wine/30 hover:bg-wineTint'
-            }`}
-          >
-            VIP Menu
-          </button>
-        </div>
-      )}
 
       {visibleCategories.length > 0 && (
         <CategoryNav categories={visibleCategories} activeId={activeId} onSelect={scrollToCategory} />
