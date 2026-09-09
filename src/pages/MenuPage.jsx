@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMenuData } from '../hooks/useMenuData.js'
+import Hero from '../components/Hero.jsx'
 import CategoryNav from '../components/CategoryNav.jsx'
 import MenuItemRow from '../components/MenuItemRow.jsx'
 
@@ -9,14 +10,22 @@ const RESTAURANT_TAGLINE = 'Fresh cuts, fire-grilled, served with tradition'
 export default function MenuPage() {
   const { categories, items, loading, error } = useMenuData()
   const [activeId, setActiveId] = useState(null)
+  const [mode, setMode] = useState('regular') // 'regular' | 'vip'
   const sectionRefs = useRef({})
+  const menuStartRef = useRef(null)
+
+  // Regular categories are what a walk-in customer sees first.
+  // VIP-labelled categories are tucked behind a separate toggle.
+  const regularCategories = categories.filter((c) => !c.name.trim().toLowerCase().startsWith('vip'))
+  const vipCategories = categories.filter((c) => c.name.trim().toLowerCase().startsWith('vip'))
+  const visibleCategories = mode === 'vip' ? vipCategories : regularCategories
 
   useEffect(() => {
-    if (categories.length && !activeId) setActiveId(categories[0].id)
-  }, [categories, activeId])
+    if (visibleCategories.length) setActiveId(visibleCategories[0].id)
+  }, [mode, categories.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!categories.length) return
+    if (!visibleCategories.length) return
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter((e) => e.isIntersecting)
@@ -29,11 +38,15 @@ export default function MenuPage() {
     )
     Object.values(sectionRefs.current).forEach((el) => el && observer.observe(el))
     return () => observer.disconnect()
-  }, [categories, items])
+  }, [visibleCategories, items])
 
   function scrollToCategory(id) {
     setActiveId(id)
     sectionRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  function scrollToMenu() {
+    menuStartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   if (loading) {
@@ -55,7 +68,7 @@ export default function MenuPage() {
     )
   }
 
-  const itemsByCategory = categories.map((cat) => ({
+  const itemsByCategory = visibleCategories.map((cat) => ({
     ...cat,
     items: items
       .filter((i) => i.category_id === cat.id)
@@ -65,19 +78,37 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      {/* Hero */}
-      <header className="px-6 sm:px-8 pt-10 pb-6 text-center border-b-2 border-wine/15 bg-gradient-to-b from-wineTint/60 to-transparent">
-        <p className="font-display italic text-gold text-sm mb-1 tracking-wide">
-          {RESTAURANT_TAGLINE}
-        </p>
-        <h1 className="group inline-block font-display text-[30px] sm:text-[42px] text-wine leading-tight transition-all duration-300 hover:tracking-wide hover:text-wineDeep cursor-default">
-          {RESTAURANT_NAME}
-          <span className="block h-[2px] w-0 bg-gold mx-auto mt-2 transition-all duration-500 group-hover:w-2/3" />
-        </h1>
-      </header>
+      <Hero name={RESTAURANT_NAME} tagline={RESTAURANT_TAGLINE} onViewMenu={scrollToMenu} />
 
-      {categories.length > 0 && (
-        <CategoryNav categories={categories} activeId={activeId} onSelect={scrollToCategory} />
+      <div ref={menuStartRef} className="scroll-mt-0" />
+
+      {vipCategories.length > 0 && (
+        <div className="flex justify-center gap-2 pt-6 pb-1 px-4">
+          <button
+            onClick={() => setMode('regular')}
+            className={`text-xs tracking-wide px-4 py-1.5 rounded-full border transition-colors ${
+              mode === 'regular'
+                ? 'bg-wine text-paper border-wine'
+                : 'text-wine/70 border-wine/30 hover:bg-wineTint'
+            }`}
+          >
+            Menu
+          </button>
+          <button
+            onClick={() => setMode('vip')}
+            className={`text-xs tracking-wide px-4 py-1.5 rounded-full border transition-colors ${
+              mode === 'vip'
+                ? 'bg-wine text-paper border-wine'
+                : 'text-wine/70 border-wine/30 hover:bg-wineTint'
+            }`}
+          >
+            VIP Menu
+          </button>
+        </div>
+      )}
+
+      {visibleCategories.length > 0 && (
+        <CategoryNav categories={visibleCategories} activeId={activeId} onSelect={scrollToCategory} />
       )}
 
       <main className="max-w-2xl mx-auto px-5 sm:px-8 pb-24">
