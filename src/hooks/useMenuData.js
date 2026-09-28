@@ -7,20 +7,27 @@ import { supabase } from '../supabaseClient.js'
 export function useMenuData() {
   const [categories, setCategories] = useState([])
   const [items, setItems] = useState([])
+  const [info, setInfo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
-    const [{ data: cats, error: catErr }, { data: menuItems, error: itemErr }] = await Promise.all([
+    const [
+      { data: cats, error: catErr },
+      { data: menuItems, error: itemErr },
+      { data: infoRow, error: infoErr },
+    ] = await Promise.all([
       supabase.from('categories').select('*').order('sort_order', { ascending: true }),
       supabase.from('menu_items').select('*').order('sort_order', { ascending: true }),
+      supabase.from('restaurant_info').select('*').eq('id', 1).maybeSingle(),
     ])
-    if (catErr || itemErr) {
-      setError(catErr || itemErr)
+    if (catErr || itemErr || infoErr) {
+      setError(catErr || itemErr || infoErr)
     } else {
       setCategories(cats)
       setItems(menuItems)
+      setInfo(infoRow)
       setError(null)
     }
     setLoading(false)
@@ -34,10 +41,16 @@ export function useMenuData() {
       .channel('public:menu-sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_items' }, fetchAll)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, fetchAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurant_info' }, fetchAll)
       .subscribe()
 
     return () => supabase.removeChannel(channel)
   }, [fetchAll])
+
+  async function updateRestaurantInfo(changes) {
+    const { error: err } = await supabase.from('restaurant_info').upsert({ id: 1, ...changes })
+    if (err) throw err
+  }
 
   async function updateItem(id, changes) {
     const { error: err } = await supabase.from('menu_items').update(changes).eq('id', id)
@@ -72,6 +85,7 @@ export function useMenuData() {
   return {
     categories,
     items,
+    info,
     loading,
     error,
     refresh: fetchAll,
@@ -81,5 +95,6 @@ export function useMenuData() {
     addCategory,
     updateCategory,
     deleteCategory,
+    updateRestaurantInfo,
   }
 }

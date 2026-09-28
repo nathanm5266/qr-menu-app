@@ -3,11 +3,13 @@ import { supabase } from '../supabaseClient.js'
 import { useMenuData } from '../hooks/useMenuData.js'
 import ItemEditModal from '../components/ItemEditModal.jsx'
 import CategoryManager from '../components/CategoryManager.jsx'
+import RestaurantInfoManager from '../components/RestaurantInfoManager.jsx'
 
 export default function AdminDashboard() {
   const {
     categories,
     items,
+    info,
     loading,
     updateItem,
     addItem,
@@ -15,6 +17,7 @@ export default function AdminDashboard() {
     addCategory,
     updateCategory,
     deleteCategory,
+    updateRestaurantInfo,
   } = useMenuData()
 
   const [editingItem, setEditingItem] = useState(null) // item object, or {} for "new", or null for closed
@@ -57,6 +60,8 @@ export default function AdminDashboard() {
       </header>
 
       <main className="max-w-2xl mx-auto px-5 sm:px-8 py-8">
+        <RestaurantInfoManager info={info} onSave={updateRestaurantInfo} />
+
         <CategoryManager
           categories={categories}
           onAdd={(name) => addCategory({ name, sort_order: categories.length })}

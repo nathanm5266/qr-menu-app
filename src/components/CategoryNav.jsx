@@ -1,7 +1,7 @@
 export default function CategoryNav({ categories, activeId, onSelect }) {
   return (
     <nav
-      className="sticky top-0 z-20 bg-paper/95 backdrop-blur border-b-2 border-wine/15 shadow-sm"
+      className="sticky top-16 z-20 bg-paper/95 backdrop-blur border-b-2 border-wine/15 shadow-sm"
       aria-label="Menu categories"
     >
       <div className="flex gap-2 overflow-x-auto px-4 sm:px-8 py-3 no-scrollbar">

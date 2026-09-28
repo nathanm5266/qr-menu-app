@@ -4,12 +4,13 @@ import Navbar from '../components/Navbar.jsx'
 import Hero from '../components/Hero.jsx'
 import CategoryNav from '../components/CategoryNav.jsx'
 import MenuItemRow from '../components/MenuItemRow.jsx'
+import Footer from '../components/Footer.jsx'
 
 const RESTAURANT_NAME = 'Misrak Addis Hotel & Butchery'
 const RESTAURANT_TAGLINE = 'Fresh cuts, fire-grilled, served with tradition'
 
 export default function MenuPage() {
-  const { categories, items, loading, error } = useMenuData()
+  const { categories, items, info, loading, error } = useMenuData()
   const [activeId, setActiveId] = useState(null)
   const [mode, setMode] = useState('regular') // 'regular' | 'vip'
   const sectionRefs = useRef({})
@@ -35,7 +36,7 @@ export default function MenuPage() {
           setActiveId(Number(topMost.target.dataset.categoryId))
         }
       },
-      { rootMargin: '-120px 0px -70% 0px', threshold: 0 }
+      { rootMargin: '-160px 0px -70% 0px', threshold: 0 }
     )
     Object.values(sectionRefs.current).forEach((el) => el && observer.observe(el))
     return () => observer.disconnect()
@@ -99,7 +100,7 @@ export default function MenuPage() {
         <CategoryNav categories={visibleCategories} activeId={activeId} onSelect={scrollToCategory} />
       )}
 
-      <main className="max-w-2xl mx-auto px-5 sm:px-8 pb-24">
+      <main className="max-w-2xl mx-auto px-5 sm:px-8 pb-12">
         {itemsByCategory.length === 0 && (
           <p className="text-center text-ink/50 py-20 font-body text-sm">
             The menu is being set up. Please check back shortly.
@@ -112,7 +113,7 @@ export default function MenuPage() {
             id={`cat-${cat.id}`}
             data-category-id={cat.id}
             ref={(el) => (sectionRefs.current[cat.id] = el)}
-            className="pt-10 scroll-mt-24"
+            className="pt-10 scroll-mt-32"
           >
             <div className="flex items-center gap-3 mb-1">
               <h2 className="font-display text-[28px] sm:text-[30px] font-medium text-wine tracking-wide">
@@ -135,9 +136,11 @@ export default function MenuPage() {
         ))}
       </main>
 
-      <footer className="text-center text-ink/35 text-xs font-body pb-8">
+      <p className="text-center text-ink/35 text-xs font-body pb-6">
         Prices in local currency, inclusive of tax.
-      </footer>
+      </p>
+
+      <Footer info={info} />
     </div>
   )
 }
